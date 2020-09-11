@@ -10,7 +10,7 @@
 
 <script>
 import echarts from "echarts";
-const animationDuration = 6000;
+// const animationDuration = 6000;
 export default {
   props: {
     id: {
@@ -38,17 +38,8 @@ export default {
   },
   data() {
     return {
-      chart: null
-    };
-  },
-  //生命周期 - 创建完成（访问当前this实例）
-  mounted() {
-    this.initChart();
-  },
-  methods: {
-    initChart() {
-      this.chart = echarts.init(document.getElementById(this.id));
-      this.chart.setOption({
+      chart: null,
+      options: {
         tooltip: {
           trigger: "axis",
           axisPointer: {
@@ -66,7 +57,7 @@ export default {
         xAxis: [
           {
             type: "category",
-            data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            data: ["html", "css", "javascript", "vue"],
             axisTick: {
               alignWithLabel: true
             }
@@ -82,31 +73,40 @@ export default {
         ],
         series: [
           {
-            name: "pageA",
-            type: "bar",
-            stack: "vistors",
-            barWidth: "60%",
-            data: [79, 52, 200, 334, 390, 330, 220],
-            animationDuration
-          },
-          {
-            name: "pageB",
-            type: "bar",
-            stack: "vistors",
-            barWidth: "60%",
-            data: [80, 52, 200, 334, 390, 330, 220],
-            animationDuration
-          },
-          {
-            name: "pageC",
-            type: "bar",
-            stack: "vistors",
-            barWidth: "60%",
-            data: [30, 52, 200, 334, 390, 330, 220],
-            animationDuration
+            data: [],
+            type: "bar"
           }
         ]
-      });
+      }
+    };
+  },
+  watch: {
+    seriesData: {
+      handler(newVal, oldVal) {
+        if (this.chart) {
+          if (newVal) {
+            this.options.series[0].data = newVal;
+          } else {
+            this.options.series[0].data = oldVal;
+          }
+          this.chart.setOption(this.options);
+        } else {
+          this.initChart();
+        }
+      },
+      deep: true
+    }
+  },
+  //生命周期 - 创建完成（访问当前this实例）
+  mounted() {
+    this.$nextTick(() => {
+      this.initChart();
+    });
+  },
+  methods: {
+    initChart() {
+      this.chart = echarts.init(document.getElementById(this.id));
+      this.chart.setOption(this.options, true);
     }
   }
 };
